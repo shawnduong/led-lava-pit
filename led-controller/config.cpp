@@ -7,7 +7,7 @@
 /* --- Internal definitions. --- */
 
 #define DEFAULT_TICK_INTERVAL 500
-#define MAX_ROWS 16
+#define MAX_ROWS 32
 
 /* EEPROM address where the config is persisted, and a magic byte written
  * alongside it so we can tell valid saved config apart from blank/garbage
@@ -73,8 +73,8 @@ void _menu(
 	void (*cb_display)(uint8_t),  // display function; cb_display(opt)
 	bool (*cb_select)(uint8_t),   // selection function; cb_select(opt);
 	                              //     ret=true => exit
-	uint16_t opt_init,             // initial option value
-	uint16_t opt_max               // max option value (inclusive)
+	uint16_t opt_init,            // initial option value
+	uint16_t opt_max              // max option value (inclusive)
 ){
 	uint8_t clk = digitalRead(KY_CLK);
 	uint16_t opt = opt_init;
