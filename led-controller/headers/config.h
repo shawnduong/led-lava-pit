@@ -1,9 +1,9 @@
 #pragma once
 
 /* Change these based on your wiring, if needed. */
-#define KY_CLK 4
-#define KY_DT  3
-#define KY_SW  2
+#define KY_CLK  4
+#define KY_DT   3
+#define KY_SW   2
 
 /* Initialize the configuration module. */
 void init_config();
