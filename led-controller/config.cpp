@@ -20,8 +20,8 @@
 #define CONFIG_OPTION_EXIT        3
 
 void _handle_config_mode();
-void _select_config_option(uint8_t option);
-void _display_option(uint8_t option);
+bool _select_config_option(uint8_t option);
+void _display_config_option(uint8_t option);
 
 struct _conf_t {
 	uint16_t tick_interval;
@@ -57,21 +57,27 @@ void poll_config_mode()
 
 /* --- Private functions. ------ */
 
-void _handle_config_mode()
-{
-	Serial.println(":: Entering configuration mode...");
-	_display_option(CONFIG_OPTION_ROW_LENGTHS);
-
+void _menu(
+	char *name,                   // menu name for debugging purposes
+	void (*cb_display)(uint8_t),  // display function; cb_display(opt)
+	bool (*cb_select)(uint8_t),   // selection function; cb_select(opt);
+	                              //     ret=true => exit
+	uint8_t opt_init,             // initial option value
+	uint8_t opt_max               // max option value (inclusive)
+){
 	uint8_t clk = digitalRead(KY_CLK);
-	uint8_t n = 0;
+	uint8_t opt = opt_init;
+	cb_display(opt);
+
+	Serial.print(":: Entering menu: ");
+	Serial.println(name);
+
 	while (true)
 	{
 		/* Button press event. */
 		if (digitalRead(KY_SW) == LOW)
 		{
-			_select_config_option(n);
-			if (n == CONFIG_OPTION_EXIT)  break;
-
+			if (cb_select(opt))  break;
 			delay(1000);
 			continue;
 		}
@@ -83,19 +89,28 @@ void _handle_config_mode()
 			continue;
 		}
 		clk = !clk;
-		if (clk != digitalRead(KY_DT))  n = (n+1) % 4;
-		else                            n = (n < 1 ? 3 : n-1);
-		_display_option(n);
+		if (clk != digitalRead(KY_DT))  opt = (opt+1) % (opt_max+1);
+		else                            opt = (opt < 1 ? opt_max : opt-1);
+		cb_display(opt);
 	}
 
-	Serial.println(":: Exiting configuration mode.");
+	Serial.print(":: Exiting menu: ");
+	Serial.println(name);
+}
 
-	write_lcd("Exiting...");
-	delay(1000);
+void _handle_config_mode()
+{
+	_menu(
+		"Configuration Mode",
+		&_display_config_option,
+		&_select_config_option,
+		CONFIG_OPTION_ROW_LENGTHS,
+		CONFIG_OPTION_EXIT
+	);
 	write_lcd("Press knob to", "configure.");
 }
 
-void _display_option(uint8_t option)
+void _display_config_option(uint8_t option)
 {
 	write_lcd_row(0, "Configure:");
 	switch (option)
@@ -117,7 +132,7 @@ void _display_option(uint8_t option)
 	}
 }
 
-void _select_config_option(uint8_t option)
+bool _select_config_option(uint8_t option)
 {
 	switch (option)
 	{
@@ -132,8 +147,10 @@ void _select_config_option(uint8_t option)
 		break;
 	case CONFIG_OPTION_EXIT:
 //		_save_config();
-		return;
+		return true;
 	default:
 		break;
 	}
+
+	return false;
 }
