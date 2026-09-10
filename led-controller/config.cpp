@@ -19,20 +19,19 @@
 #define CONFIG_OPTION_DIRECTION   2
 #define CONFIG_OPTION_EXIT        3
 
-/* ----------------------------- */
-
-/* Forward declarations. */
 void _handle_config_mode();
 void _select_config_option(uint8_t option);
 void _display_option(uint8_t option);
 
-struct conf_t {
+struct _conf_t {
 	uint16_t tick_interval;
 	uint16_t row_length[MAX_ROWS];
 	uint8_t effect;
 	uint8_t direction;
 };
-static conf_t config;
+static _conf_t _config;
+
+/* --- Public functions. ------- */
 
 void init_config()
 {
@@ -40,12 +39,12 @@ void init_config()
 	pinMode(KY_DT , INPUT_PULLUP);
 	pinMode(KY_SW , INPUT_PULLUP);
 
-	config.tick_interval = DEFAULT_TICK_INTERVAL;
+	_config.tick_interval = DEFAULT_TICK_INTERVAL;
 
 	for (uint8_t i = 0; i < MAX_ROWS; i++)
-		config.row_length[i] = 0;
-	config.effect = EFFECT_STATIC;
-	config.direction = DIRECTION_NORMAL;
+		_config.row_length[i] = 0;
+	_config.effect = EFFECT_STATIC;
+	_config.direction = DIRECTION_NORMAL;
 
 	write_lcd("Press knob to", "configure.");
 }
@@ -55,6 +54,8 @@ void poll_config_mode()
 	if (digitalRead(KY_SW) == HIGH)  return;
 	_handle_config_mode();
 }
+
+/* --- Private functions. ------ */
 
 void _handle_config_mode()
 {
