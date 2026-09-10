@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "config.h"
-#include "lcd.h"
+#include "headers/config.h"
+#include "headers/lcd.h"
 
 /* --- Internal definitions. --- */
 

@@ -1,6 +1,6 @@
 #include <Wire.h>
-#include "config.h"
-#include "lcd.h"
+#include "headers/config.h"
+#include "headers/lcd.h"
 
 void setup()
 {

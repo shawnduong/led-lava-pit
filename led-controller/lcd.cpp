@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
-#include "lcd.h"
+#include "headers/lcd.h"
 
 static LiquidCrystal_I2C lcd(0,0,0);
 
