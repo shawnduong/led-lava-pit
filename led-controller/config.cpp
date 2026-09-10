@@ -7,6 +7,11 @@
 #define DEFAULT_TICK_INTERVAL 500
 #define MAX_ROWS 16
 
+#define CONFIG_OPTION_ROW_LENGTHS 0
+#define CONFIG_OPTION_EFFECT      1
+#define CONFIG_OPTION_DIRECTION   2
+#define CONFIG_OPTION_EXIT        3
+
 #define EFFECT_STATIC   0
 #define EFFECT_STILL    1
 #define EFFECT_FLOWING  2
@@ -14,14 +19,9 @@
 #define DIRECTION_NORMAL   0
 #define DIRECTION_REVERSE  1
 
-#define CONFIG_OPTION_ROW_LENGTHS 0
-#define CONFIG_OPTION_EFFECT      1
-#define CONFIG_OPTION_DIRECTION   2
-#define CONFIG_OPTION_EXIT        3
-
 void _handle_config_mode();
-bool _select_config_option(uint8_t option);
-void _display_config_option(uint8_t option);
+void _handle_configure_effect();
+void _handle_configure_direction();
 
 struct _conf_t {
 	uint16_t tick_interval;
@@ -72,13 +72,18 @@ void _menu(
 	Serial.print(":: Entering menu: ");
 	Serial.println(name);
 
+	delay(1000);
 	while (true)
 	{
 		/* Button press event. */
 		if (digitalRead(KY_SW) == LOW)
 		{
 			if (cb_select(opt))  break;
-			delay(1000);
+			cb_display(opt);
+			delay(500);
+
+			/* Prevent leaking into the next iteration. */
+			clk = digitalRead(KY_CLK);
 			continue;
 		}
 
@@ -96,18 +101,6 @@ void _menu(
 
 	Serial.print(":: Exiting menu: ");
 	Serial.println(name);
-}
-
-void _handle_config_mode()
-{
-	_menu(
-		"Configuration Mode",
-		&_display_config_option,
-		&_select_config_option,
-		CONFIG_OPTION_ROW_LENGTHS,
-		CONFIG_OPTION_EXIT
-	);
-	write_lcd("Press knob to", "configure.");
 }
 
 void _display_config_option(uint8_t option)
@@ -140,10 +133,10 @@ bool _select_config_option(uint8_t option)
 //		_configure_row_lengths();
 		break;
 	case CONFIG_OPTION_EFFECT:
-//		_configure_effect();
+		_handle_configure_effect();
 		break;
 	case CONFIG_OPTION_DIRECTION:
-//		_configure_direction();
+		_handle_configure_direction();
 		break;
 	case CONFIG_OPTION_EXIT:
 //		_save_config();
@@ -153,4 +146,85 @@ bool _select_config_option(uint8_t option)
 	}
 
 	return false;
+}
+
+void _handle_config_mode()
+{
+	_menu(
+		"Configuration Mode",
+		&_display_config_option,
+		&_select_config_option,
+		CONFIG_OPTION_ROW_LENGTHS,
+		CONFIG_OPTION_EXIT
+	);
+	write_lcd("Press knob to", "configure.");
+}
+
+void _display_effect_option(uint8_t option)
+{
+	write_lcd_row(0, "Effect:");
+	switch (option)
+	{
+	case EFFECT_STATIC:
+		write_lcd_row(1, "0. Static");
+		break;
+	case EFFECT_STILL:
+		write_lcd_row(1, "1. Still");
+		break;
+	case EFFECT_FLOWING:
+		write_lcd_row(1, "2. Flowing");
+		break;
+	default:
+		break;
+	}
+}
+
+bool _select_effect_option(uint8_t option)
+{
+	_config.effect = option;
+	return true;
+}
+
+void _handle_configure_effect()
+{
+	_menu(
+		"Configure Effect",
+		&_display_effect_option,
+		&_select_effect_option,
+		_config.effect,
+		EFFECT_FLOWING
+	);
+}
+
+void _display_direction_option(uint8_t option)
+{
+	write_lcd_row(0, "Direction:");
+	switch (option)
+	{
+	case DIRECTION_NORMAL:
+		write_lcd_row(1, "0. Normal");
+		break;
+	case DIRECTION_REVERSE:
+		write_lcd_row(1, "1. Reverse");
+		break;
+	default:
+		break;
+	}
+}
+
+bool _select_direction_option(uint8_t option)
+{
+	_config.direction = option;
+	return true;
+}
+
+void _handle_configure_direction()
+{
+	_menu(
+		"Configure Direction",
+		&_display_direction_option,
+		&_select_direction_option,
+		_config.direction,
+		DIRECTION_REVERSE
+	);
 }
