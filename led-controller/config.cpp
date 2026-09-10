@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include "headers/config.h"
 #include "headers/lcd.h"
+#include "headers/leds.h"
 
 /* --- Internal definitions. --- */
 
@@ -29,6 +30,7 @@
 void _handle_config_mode();
 void _handle_configure_effect();
 void _handle_configure_direction();
+void _configure_row_lengths();
 void _save_config();
 void _load_default_config();
 
@@ -39,6 +41,8 @@ struct _conf_t {
 	uint8_t direction;
 };
 static _conf_t _config;
+
+static uint8_t tmp_row;
 
 /* --- Public functions. ------- */
 
@@ -69,11 +73,11 @@ void _menu(
 	void (*cb_display)(uint8_t),  // display function; cb_display(opt)
 	bool (*cb_select)(uint8_t),   // selection function; cb_select(opt);
 	                              //     ret=true => exit
-	uint8_t opt_init,             // initial option value
-	uint8_t opt_max               // max option value (inclusive)
+	uint16_t opt_init,             // initial option value
+	uint16_t opt_max               // max option value (inclusive)
 ){
 	uint8_t clk = digitalRead(KY_CLK);
-	uint8_t opt = opt_init;
+	uint16_t opt = opt_init;
 	cb_display(opt);
 
 	Serial.print(":: Entering menu: ");
@@ -137,7 +141,7 @@ bool _select_config_option(uint8_t option)
 	switch (option)
 	{
 	case CONFIG_OPTION_ROW_LENGTHS:
-//		_configure_row_lengths();
+		_configure_row_lengths();
 		break;
 	case CONFIG_OPTION_EFFECT:
 		_handle_configure_effect();
@@ -165,6 +169,55 @@ void _handle_config_mode()
 		CONFIG_OPTION_EXIT
 	);
 	write_lcd("Press knob to", "configure.");
+}
+
+void _display_row_length_option(uint8_t option)
+{
+	char buffer[32];
+
+	sprintf(buffer, "Row Length (%d)", tmp_row);
+	write_lcd_row(0, buffer);
+
+	sprintf(buffer, "%d", option);
+	write_lcd_row(1, buffer);
+
+	uint16_t offset = 0;
+	for (uint8_t row = 0; row < tmp_row; row++)
+		offset += _config.row_length[row];
+
+	clear_leds();
+	for (uint16_t length = 0; length < option; length++)
+		set_led_color(offset+length, 0, 0, 128);
+	show_leds();
+}
+
+bool _select_row_length_option(uint8_t option)
+{
+	_config.row_length[tmp_row] = option;
+	return true;
+}
+
+void _configure_row_lengths()
+{
+	char buffer[32];
+
+	for (uint8_t row = 0; row < MAX_ROWS; row++)
+		_config.row_length[row] = 0;
+
+	for (tmp_row = 0; tmp_row < MAX_ROWS; tmp_row++)
+	{
+		sprintf(buffer, "Row Length (%d)", tmp_row);
+		_menu(
+			buffer,
+			&_display_row_length_option,
+			&_select_row_length_option,
+			0,
+			MAX_LEDS-1
+		);
+
+		/* If the last value entered was 0, finish. */
+		if (_config.row_length[tmp_row] == 0)  break;
+	}
 }
 
 void _display_effect_option(uint8_t option)

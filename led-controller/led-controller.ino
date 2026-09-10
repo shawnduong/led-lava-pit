@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "headers/config.h"
 #include "headers/lcd.h"
+#include "headers/leds.h"
 
 void setup()
 {
@@ -22,6 +23,7 @@ void setup()
 		}
 	}
 	init_config();
+	init_leds();
 
 	Serial.println(":: Initialization complete.");
 }
