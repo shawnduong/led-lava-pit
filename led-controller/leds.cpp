@@ -2,7 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "headers/leds.h"
 
-static Adafruit_NeoPixel leds(MAX_LEDS, WS2818B_PIN, NEO_GRB + NEO_KHZ800);
+static Adafruit_NeoPixel leds(MAX_LEDS, WS2812B_PIN, NEO_GRB + NEO_KHZ800);
 
 void init_leds()
 {

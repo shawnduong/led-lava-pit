@@ -1,7 +1,7 @@
 #pragma once
 
 /* Change this based on your wiring, if needed. */
-#define WS2818B_PIN 7
+#define WS2812B_PIN 7
 
 #define MAX_LEDS 300
 
