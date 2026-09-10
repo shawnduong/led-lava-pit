@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 #include "headers/config.h"
 #include "headers/lcd.h"
 
@@ -7,10 +8,16 @@
 #define DEFAULT_TICK_INTERVAL 500
 #define MAX_ROWS 16
 
-#define CONFIG_OPTION_ROW_LENGTHS 0
-#define CONFIG_OPTION_EFFECT      1
-#define CONFIG_OPTION_DIRECTION   2
-#define CONFIG_OPTION_EXIT        3
+/* EEPROM address where the config is persisted, and a magic byte written
+ * alongside it so we can tell valid saved config apart from blank/garbage
+ * EEPROM contents (e.g. on a brand new board). */
+#define CONFIG_EEPROM_ADDR 0
+#define CONFIG_MAGIC 0xC5
+
+#define CONFIG_OPTION_ROW_LENGTHS  0
+#define CONFIG_OPTION_EFFECT       1
+#define CONFIG_OPTION_DIRECTION    2
+#define CONFIG_OPTION_EXIT         3
 
 #define EFFECT_STATIC   0
 #define EFFECT_STILL    1
@@ -22,6 +29,8 @@
 void _handle_config_mode();
 void _handle_configure_effect();
 void _handle_configure_direction();
+void _save_config();
+void _load_default_config();
 
 struct _conf_t {
 	uint16_t tick_interval;
@@ -39,12 +48,10 @@ void init_config()
 	pinMode(KY_DT , INPUT_PULLUP);
 	pinMode(KY_SW , INPUT_PULLUP);
 
-	_config.tick_interval = DEFAULT_TICK_INTERVAL;
-
-	for (uint8_t i = 0; i < MAX_ROWS; i++)
-		_config.row_length[i] = 0;
-	_config.effect = EFFECT_STATIC;
-	_config.direction = DIRECTION_NORMAL;
+	if (EEPROM.read(CONFIG_EEPROM_ADDR) == CONFIG_MAGIC)
+		EEPROM.get(CONFIG_EEPROM_ADDR + 1, _config);
+	else
+		_load_default_config();
 
 	write_lcd("Press knob to", "configure.");
 }
@@ -139,7 +146,7 @@ bool _select_config_option(uint8_t option)
 		_handle_configure_direction();
 		break;
 	case CONFIG_OPTION_EXIT:
-//		_save_config();
+		_save_config();
 		return true;
 	default:
 		break;
@@ -227,4 +234,20 @@ void _handle_configure_direction()
 		_config.direction,
 		DIRECTION_REVERSE
 	);
+}
+
+void _load_default_config()
+{
+	_config.tick_interval = DEFAULT_TICK_INTERVAL;
+
+	for (uint8_t i = 0; i < MAX_ROWS; i++)
+		_config.row_length[i] = 0;
+	_config.effect = EFFECT_STATIC;
+	_config.direction = DIRECTION_NORMAL;
+}
+
+void _save_config()
+{
+	EEPROM.update(CONFIG_EEPROM_ADDR, CONFIG_MAGIC);
+	EEPROM.put(CONFIG_EEPROM_ADDR + 1, _config);
 }
