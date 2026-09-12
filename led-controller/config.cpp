@@ -115,8 +115,10 @@ void _menu(
 		if (clk != digitalRead(KY_DT))
 			opt = (opt+1) % (opt_max+1);
 		/* Counter-clockwise */
+		else if (loop)
+			opt = (opt < 1 ? opt_max : opt-1);
 		else
-			opt = (loop ? (opt < 1 ? opt_max : opt-1) : (opt > 0 ? opt-1 : 0));
+			opt = (opt > 0 ? opt-1 : 0);
 
 		cb_display(opt);
 	}
