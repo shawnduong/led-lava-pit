@@ -9,6 +9,9 @@
 #define DEFAULT_TICK_INTERVAL 500
 #define MAX_ROWS 32
 
+#define ALLOW_LOOPBACK_SCROLLING     true
+#define DISALLOW_LOOPBACK_SCROLLING  false
+
 /* EEPROM address where the config is persisted, and a magic byte written
  * alongside it so we can tell valid saved config apart from blank/garbage
  * EEPROM contents (e.g. on a brand new board). */
@@ -36,6 +39,7 @@ void _load_default_config();
 
 struct _conf_t {
 	uint16_t tick_interval;
+	uint16_t row_shift[MAX_ROWS];
 	uint16_t row_length[MAX_ROWS];
 	uint8_t effect;
 	uint8_t direction;
@@ -74,7 +78,8 @@ void _menu(
 	bool (*cb_select)(uint8_t),   // selection function; cb_select(opt);
 	                              //     ret=true => exit
 	uint16_t opt_init,            // initial option value
-	uint16_t opt_max              // max option value (inclusive)
+	uint16_t opt_max,             // max option value (inclusive)
+	bool loop                     // allow loopback scrolling
 ){
 	uint8_t clk = digitalRead(KY_CLK);
 	uint16_t opt = opt_init;
@@ -105,8 +110,14 @@ void _menu(
 			continue;
 		}
 		clk = !clk;
-		if (clk != digitalRead(KY_DT))  opt = (opt+1) % (opt_max+1);
-		else                            opt = (opt < 1 ? opt_max : opt-1);
+
+		/* Clockwise */
+		if (clk != digitalRead(KY_DT))
+			opt = (opt+1) % (opt_max+1);
+		/* Counter-clockwise */
+		else
+			opt = (loop ? (opt < 1 ? opt_max : opt-1) : (opt > 0 ? opt-1 : 0));
+
 		cb_display(opt);
 	}
 
@@ -166,31 +177,50 @@ void _handle_config_mode()
 		&_display_config_option,
 		&_select_config_option,
 		CONFIG_OPTION_ROW_LENGTHS,
-		CONFIG_OPTION_EXIT
+		CONFIG_OPTION_EXIT,
+		ALLOW_LOOPBACK_SCROLLING
 	);
 	write_lcd("Press knob to", "configure.");
 }
 
-void _display_row_length_option(uint8_t option)
+/* color in [8b red][8b green][8b blue][8b unused] format */
+void _display_row_option(char *type, uint8_t option, uint32_t color)
 {
 	char buffer[32];
 
-	sprintf(buffer, "Row Length (%d)", tmp_row);
+	sprintf(buffer, "Row %s (%d)", type, tmp_row);
 	write_lcd_row(0, buffer);
 
 	sprintf(buffer, "%d", option);
 	write_lcd_row(1, buffer);
 
 	uint16_t offset = 0;
-	for (uint8_t row = 0; row < tmp_row; row++)
-		offset += _config.row_length[row];
+	for (uint8_t row = 0; row < MAX_ROWS; row++)
+		offset += _config.row_shift[row] + _config.row_length[row];
+
+	uint8_t r = (color >> 24) & 0xFF;
+	uint8_t g = (color >> 16) & 0xFF;
+	uint8_t b = (color >>  8) & 0xFF;
 
 	clear_leds();
-	for (uint16_t length = 0; length < option; length++)
-		set_led_color(offset+length, 0, 0, 128);
+	for (uint16_t pos = 0; pos < option; pos++)
+		set_led_color(offset+pos, r, g, b);
 	show_leds();
 }
+void _display_row_shift_option(uint8_t option)
+{
+	_display_row_option("Shift", option, 0x7F000000);
+}
+void _display_row_length_option(uint8_t option)
+{
+	_display_row_option("Length", option, 0x007F0000);
+}
 
+bool _select_row_shift_option(uint8_t option)
+{
+	_config.row_shift[tmp_row] = option;
+	return true;
+}
 bool _select_row_length_option(uint8_t option)
 {
 	_config.row_length[tmp_row] = option;
@@ -202,17 +232,31 @@ void _configure_row_lengths()
 	char buffer[32];
 
 	for (uint8_t row = 0; row < MAX_ROWS; row++)
+	{
+		_config.row_shift[row] = 0;
 		_config.row_length[row] = 0;
+	}
 
 	for (tmp_row = 0; tmp_row < MAX_ROWS; tmp_row++)
 	{
+		sprintf(buffer, "Row Shift (%d)", tmp_row);
+		_menu(
+			buffer,
+			&_display_row_shift_option,
+			&_select_row_shift_option,
+			0,
+			MAX_LEDS-1,
+			DISALLOW_LOOPBACK_SCROLLING
+		);
+
 		sprintf(buffer, "Row Length (%d)", tmp_row);
 		_menu(
 			buffer,
 			&_display_row_length_option,
 			&_select_row_length_option,
 			0,
-			MAX_LEDS-1
+			MAX_LEDS-1,
+			DISALLOW_LOOPBACK_SCROLLING
 		);
 
 		/* If the last value entered was 0, finish. */
@@ -252,7 +296,8 @@ void _handle_configure_effect()
 		&_display_effect_option,
 		&_select_effect_option,
 		_config.effect,
-		EFFECT_FLOWING
+		EFFECT_FLOWING,
+		ALLOW_LOOPBACK_SCROLLING
 	);
 }
 
@@ -285,7 +330,8 @@ void _handle_configure_direction()
 		&_display_direction_option,
 		&_select_direction_option,
 		_config.direction,
-		DIRECTION_REVERSE
+		DIRECTION_REVERSE,
+		ALLOW_LOOPBACK_SCROLLING
 	);
 }
 
@@ -294,7 +340,10 @@ void _load_default_config()
 	_config.tick_interval = DEFAULT_TICK_INTERVAL;
 
 	for (uint8_t i = 0; i < MAX_ROWS; i++)
+	{
+		_config.row_shift[i] = 0;
 		_config.row_length[i] = 0;
+	}
 	_config.effect = EFFECT_STATIC;
 	_config.direction = DIRECTION_NORMAL;
 }

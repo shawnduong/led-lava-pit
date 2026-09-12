@@ -3,7 +3,7 @@
 /* Change this based on your wiring, if needed. */
 #define WS2812B_PIN 7
 
-#define MAX_LEDS 300
+#define MAX_LEDS 256
 
 /* Initialize the LEDs module. */
 void init_leds();
