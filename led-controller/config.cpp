@@ -130,6 +130,7 @@ void _display_config_option(uint8_t option)
 	write_lcd_row(0, "Configure:");
 	switch (option)
 	{
+	default:
 	case CONFIG_OPTION_ROW_LENGTHS:
 		write_lcd_row(1, "0. Row Lengths");
 		break;
@@ -141,8 +142,6 @@ void _display_config_option(uint8_t option)
 		break;
 	case CONFIG_OPTION_EXIT:
 		write_lcd_row(1, "3. Exit");
-		break;
-	default:
 		break;
 	}
 }
@@ -269,6 +268,7 @@ void _display_effect_option(uint8_t option)
 	write_lcd_row(0, "Effect:");
 	switch (option)
 	{
+	default:
 	case EFFECT_STATIC:
 		write_lcd_row(1, "0. Static");
 		break;
@@ -277,8 +277,6 @@ void _display_effect_option(uint8_t option)
 		break;
 	case EFFECT_FLOWING:
 		write_lcd_row(1, "2. Flowing");
-		break;
-	default:
 		break;
 	}
 }
@@ -306,13 +304,12 @@ void _display_direction_option(uint8_t option)
 	write_lcd_row(0, "Direction:");
 	switch (option)
 	{
+	default:
 	case DIRECTION_NORMAL:
 		write_lcd_row(1, "0. Normal");
 		break;
 	case DIRECTION_REVERSE:
 		write_lcd_row(1, "1. Reverse");
-		break;
-	default:
 		break;
 	}
 }
