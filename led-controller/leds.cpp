@@ -7,6 +7,8 @@ static Adafruit_NeoPixel leds(MAX_LEDS, WS2812B_PIN, NEO_GRB + NEO_KHZ800);
 void init_leds()
 {
 	leds.begin();
+	clear_leds();
+	show_leds();
 }
 
 void show_leds()
