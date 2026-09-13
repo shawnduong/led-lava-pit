@@ -2,7 +2,12 @@
 
 ## Compilation
 
-Install `arduino-cli`, make sure the Arduino AVR core and required libraries are available, and connect the board over USB.
+Install `arduino-cli`, install the ESP32 Arduino core, make sure the required libraries are available, and connect the ESP32 board over USB:
+
+```sh
+$ arduino-cli core update-index
+$ arduino-cli core install esp32:esp32
+```
 
 From the repository root:
 ```sh
@@ -16,14 +21,14 @@ $ make flash
 ```
 
 The default settings are:
-- Board: `arduino:avr:uno`
-- Serial port: `/dev/ttyACM0`
+- Board: `esp32:esp32:esp32`
+- Serial port: `/dev/ttyUSB0`
 - Library directory: `$HOME/doc/appdata/Arduino/libraries/`
 
 Override settings when needed:
 ```sh
-$ make flash PORT=/dev/ttyUSB0
-$ make flash BOARD=arduino:avr:nano
+$ make flash PORT=/dev/ttyACM0
+$ make flash BOARD=esp32:esp32:esp32s3
 ```
 
 After flashing firmware, view serial output with:

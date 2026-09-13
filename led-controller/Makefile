@@ -1,6 +1,6 @@
 ARDUINO_CLI ?= arduino-cli
-PORT ?= /dev/ttyACM0
-BOARD ?= arduino:avr:uno
+PORT ?= /dev/ttyUSB0
+BOARD ?= esp32:esp32:esp32
 BAUD ?= 9600
 LIBRARIES ?= $(HOME)/doc/appdata/Arduino/libraries/
 

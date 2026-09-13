@@ -17,6 +17,7 @@
  * EEPROM contents (e.g. on a brand new board). */
 #define CONFIG_EEPROM_ADDR 0
 #define CONFIG_MAGIC 0xC5
+#define CONFIG_EEPROM_SIZE (CONFIG_EEPROM_ADDR + 1 + sizeof(conf_t))
 
 #define CONFIG_OPTION_ROW_LENGTHS  0
 #define CONFIG_OPTION_EFFECT       1
@@ -48,7 +49,12 @@ void init_config()
 	pinMode(KY_DT , INPUT_PULLUP);
 	pinMode(KY_SW , INPUT_PULLUP);
 
-	if (EEPROM.read(CONFIG_EEPROM_ADDR) == CONFIG_MAGIC)
+	if (!EEPROM.begin(CONFIG_EEPROM_SIZE))
+	{
+		Serial.println(":: Failed to initialize EEPROM.");
+		_load_default_config();
+	}
+	else if (EEPROM.read(CONFIG_EEPROM_ADDR) == CONFIG_MAGIC)
 		EEPROM.get(CONFIG_EEPROM_ADDR + 1, _config);
 	else
 		_load_default_config();
@@ -348,6 +354,8 @@ void _load_default_config()
 
 void _save_config()
 {
-	EEPROM.update(CONFIG_EEPROM_ADDR, CONFIG_MAGIC);
+	EEPROM.write(CONFIG_EEPROM_ADDR, CONFIG_MAGIC);
 	EEPROM.put(CONFIG_EEPROM_ADDR + 1, _config);
+	if (!EEPROM.commit())
+		Serial.println(":: Failed to save configuration.");
 }
