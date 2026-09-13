@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <EEPROM.h>
+#include "headers/animation.h"
 #include "headers/config.h"
 #include "headers/lcd.h"
 #include "headers/leds.h"
@@ -259,6 +260,8 @@ void _configure_row_lengths()
 		/* If the last value entered was 0, finish. */
 		if (_config.row_length[tmp_row] == 0)  break;
 	}
+
+	update_animation();
 }
 
 void _display_effect_option(uint8_t option)

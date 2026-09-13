@@ -18,7 +18,9 @@ void show_leds()
 
 void clear_leds()
 {
-	leds.clear();
+	for (uint16_t i = 0; i < MAX_LEDS; i++)
+		leds.setPixelColor(i, 0, 0, 0);
+	show_leds();
 }
 
 void set_led_color(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
