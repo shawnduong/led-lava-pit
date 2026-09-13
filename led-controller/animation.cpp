@@ -19,7 +19,6 @@ void init_animation()
 
 void update_animation()
 {
-	Serial.println(":: Updating animation...");
 	if (channel_r) free(channel_r);
 	if (channel_g) free(channel_g);
 	if (channel_b) free(channel_b);
@@ -37,21 +36,17 @@ void update_animation()
 
 	for (uint16_t i = 0; i < len; i++)
 	{
-		channel_r[i] = random(120, 200);
-		channel_g[i] = random(  0,  20);
-		channel_b[i] = random(  0,  20);
+		channel_r[i] = random(180, 220);
+		channel_g[i] = random(  0,  30);
+		channel_b[i] = random(  0,   0);
 	}
-
-	Serial.print("   Animation updated. Total pixels: "); Serial.println(len);
 }
 
 void advance_animation()
 {
 	uint16_t offset = 0;
 	uint16_t index = 0;
-	char buffer[64];
 
-	Serial.println(":: Advancing animation...");
 	clear_leds();
 	for (uint8_t row = 0; row < MAX_ROWS; row++)
 	{
@@ -61,9 +56,6 @@ void advance_animation()
 		for (uint16_t i = 0; i < config->row_length[row]; i++)
 		{
 			set_led_color(offset+i, channel_r[index], channel_g[index], channel_b[index]);
-			sprintf(buffer, "   LED %d (pixel %d): (%d, %d, %d)", offset+i, index,
-				channel_r[index], channel_g[index], channel_b[index]);
-			Serial.println(buffer);
 			index++;
 		}
 		offset += config->row_length[row];
