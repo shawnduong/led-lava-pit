@@ -259,6 +259,15 @@ void _configure_row_lengths()
 		/* If the last value entered was 0, finish. */
 		if (_config.row_length[tmp_row] == 0)  break;
 	}
+
+	/* Update the dimensions. */
+	_config.n_rows = tmp_row;
+	_config.n_cols = 0;
+	for (uint8_t row = 0; row < _config.n_rows; row++)
+	{
+		if (_config.row_length[row] > _config.n_cols)
+			_config.n_cols = _config.row_length[row];
+	}
 }
 
 void _display_effect_option(uint8_t option)
@@ -339,6 +348,8 @@ void _load_default_config()
 		_config.row_shift[i] = 0;
 		_config.row_length[i] = 0;
 	}
+	_config.n_rows = 0;
+	_config.n_cols = 0;
 	_config.effect = EFFECT_STATIC;
 	_config.direction = DIRECTION_NORMAL;
 }
