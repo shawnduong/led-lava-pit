@@ -261,12 +261,20 @@ void _configure_row_lengths()
 	}
 
 	/* Update the dimensions. */
+
 	_config.n_rows = tmp_row;
+
+	uint16_t min_shift = _config.row_shift[0];
+	for (uint8_t row = 1; row < _config.n_rows; row++)
+		if (_config.row_shift[row] < min_shift)
+			min_shift = _config.row_shift[row];
+
 	_config.n_cols = 0;
+	uint16_t max_cols = 0;
 	for (uint8_t row = 0; row < _config.n_rows; row++)
 	{
-		if (_config.row_length[row] > _config.n_cols)
-			_config.n_cols = _config.row_length[row];
+		max_cols = (_config.row_shift[row] - min_shift) + _config.row_length[row];
+		if (max_cols > _config.n_cols)  _config.n_cols = max_cols;
 	}
 }
 
