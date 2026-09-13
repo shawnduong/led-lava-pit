@@ -1,8 +1,8 @@
 #include <Wire.h>
+#include "headers/animation.h"
 #include "headers/config.h"
 #include "headers/lcd.h"
 #include "headers/leds.h"
-#include "animation/data.h"
 
 void setup()
 {
@@ -25,6 +25,7 @@ void setup()
 	}
 	init_config();
 	init_leds();
+	init_animation();
 
 	Serial.println(":: Initialization complete.");
 }
@@ -32,5 +33,6 @@ void setup()
 void loop()
 {
 	poll_config_mode();
+	advance_animation();
 	delay(500);
 }

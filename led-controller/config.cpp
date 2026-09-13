@@ -7,7 +7,6 @@
 /* --- Internal definitions. --- */
 
 #define DEFAULT_TICK_INTERVAL 500
-#define MAX_ROWS 32
 
 #define ALLOW_LOOPBACK_SCROLLING     true
 #define DISALLOW_LOOPBACK_SCROLLING  false
@@ -37,15 +36,7 @@ void _configure_row_lengths();
 void _save_config();
 void _load_default_config();
 
-struct _conf_t {
-	uint16_t tick_interval;
-	uint16_t row_shift[MAX_ROWS];
-	uint16_t row_length[MAX_ROWS];
-	uint8_t effect;
-	uint8_t direction;
-};
-static _conf_t _config;
-
+static conf_t _config;
 static uint8_t tmp_row;
 
 /* --- Public functions. ------- */
@@ -68,6 +59,11 @@ void poll_config_mode()
 {
 	if (digitalRead(KY_SW) == HIGH)  return;
 	_handle_config_mode();
+}
+
+conf_t *get_config()
+{
+	return &_config;
 }
 
 /* --- Private functions. ------ */
