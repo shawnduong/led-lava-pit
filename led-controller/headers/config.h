@@ -7,6 +7,13 @@
 
 #define MAX_ROWS 32
 
+#define EFFECT_STATIC   0
+#define EFFECT_STILL    1
+#define EFFECT_FLOWING  2
+
+#define DIRECTION_NORMAL   0
+#define DIRECTION_REVERSE  1
+
 /* Configuration struct. Get the config with get_config(). */
 struct conf_t {
 	uint16_t tick_interval;

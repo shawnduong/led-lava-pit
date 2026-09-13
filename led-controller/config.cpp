@@ -7,7 +7,7 @@
 
 /* --- Internal definitions. --- */
 
-#define DEFAULT_TICK_INTERVAL 500
+#define DEFAULT_TICK_INTERVAL 100
 
 #define ALLOW_LOOPBACK_SCROLLING     true
 #define DISALLOW_LOOPBACK_SCROLLING  false
@@ -23,13 +23,6 @@
 #define CONFIG_OPTION_EFFECT       1
 #define CONFIG_OPTION_DIRECTION    2
 #define CONFIG_OPTION_EXIT         3
-
-#define EFFECT_STATIC   0
-#define EFFECT_STILL    1
-#define EFFECT_FLOWING  2
-
-#define DIRECTION_NORMAL   0
-#define DIRECTION_REVERSE  1
 
 void _handle_config_mode();
 void _handle_configure_effect();
