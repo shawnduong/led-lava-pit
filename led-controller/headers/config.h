@@ -12,8 +12,6 @@ struct conf_t {
 	uint16_t tick_interval;
 	uint16_t row_shift[MAX_ROWS];
 	uint16_t row_length[MAX_ROWS];
-	uint8_t n_rows;
-	uint8_t n_cols;
 	uint8_t effect;
 	uint8_t direction;
 };
