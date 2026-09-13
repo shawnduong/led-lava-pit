@@ -2,6 +2,7 @@
 #include "headers/config.h"
 #include "headers/lcd.h"
 #include "headers/leds.h"
+#include "animation/data.h"
 
 void setup()
 {
