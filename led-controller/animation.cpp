@@ -47,26 +47,26 @@ void update_animation()
 
 void advance_animation()
 {
-//	uint16_t offset = 0;
-//	uint16_t index = 0;
-//	char buffer[64];
-//
-//	Serial.println(":: Advancing animation...");
-//	clear_leds();
-//	for (uint8_t row = 0; row < MAX_ROWS; row++)
-//	{
-//		if (config->row_length[row] == 0)  break;
-//
-//		offset += config->row_shift[row];
-//		for (uint16_t i = 0; i < config->row_length[row]; i++)
-//		{
-//			set_led_color(offset+i, channel_r[index], channel_g[index], channel_b[index]);
-//			sprintf(buffer, "   LED %d (pixel %d): (%d, %d, %d)", offset+i, index,
-//				channel_r[index], channel_g[index], channel_b[index]);
-//			Serial.println(buffer);
-//			index++;
-//		}
-//		offset += config->row_length[row];
-//	}
-//	show_leds();
+	uint16_t offset = 0;
+	uint16_t index = 0;
+	char buffer[64];
+
+	Serial.println(":: Advancing animation...");
+	clear_leds();
+	for (uint8_t row = 0; row < MAX_ROWS; row++)
+	{
+		if (config->row_length[row] == 0)  break;
+
+		offset += config->row_shift[row];
+		for (uint16_t i = 0; i < config->row_length[row]; i++)
+		{
+			set_led_color(offset+i, channel_r[index], channel_g[index], channel_b[index]);
+			sprintf(buffer, "   LED %d (pixel %d): (%d, %d, %d)", offset+i, index,
+				channel_r[index], channel_g[index], channel_b[index]);
+			Serial.println(buffer);
+			index++;
+		}
+		offset += config->row_length[row];
+	}
+	show_leds();
 }

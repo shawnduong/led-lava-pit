@@ -1,9 +1,9 @@
 #pragma once
 
 /* Change these based on your wiring, if needed. */
-#define KY_CLK  12
-#define KY_DT   14
-#define KY_SW   27
+#define KY_CLK  16
+#define KY_DT   17
+#define KY_SW   18
 
 #define MAX_ROWS 32
 
