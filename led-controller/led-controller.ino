@@ -4,6 +4,8 @@
 #include "headers/lcd.h"
 #include "headers/leds.h"
 
+static conf_t *config;
+
 void setup()
 {
 	Serial.begin(9600);
@@ -27,6 +29,8 @@ void setup()
 	init_leds();
 	init_animation();
 
+	config = get_config();
+
 	Serial.println(":: Initialization complete.");
 }
 
@@ -34,5 +38,5 @@ void loop()
 {
 	poll_config_mode();
 	advance_animation();
-	delay(500);
+	delay(config->tick_interval);
 }
